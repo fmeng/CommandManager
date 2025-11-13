@@ -5,7 +5,6 @@
 #include <BLEServer.h>
 #include <map>
 
-// FreeRTOS
 #include "freertos/task.h"
 
 /************************************* BLEMessage *************************************/

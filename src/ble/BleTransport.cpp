@@ -68,7 +68,6 @@ void MyCallbacks::onWrite(BLECharacteristic *pCharacteristic) {
     }
 }
 
-
 /************************************* BleTransport *************************************/
 
 BleTransport::BleTransport(std::map<String, CommandId_Type> commandMapping,
@@ -81,7 +80,6 @@ void BleTransport::setup() {
     // 把全局注册的 handler 拷贝到 CommandManager 的静态表里
     registerCommandHandlers(getGlobalCommandHandlers());
 
-    // 初始化 BLE
     BLEDevice::init(bleName.c_str());
     p_Server = BLEDevice::createServer();
     p_Server->setCallbacks(new MyServerCallbacks(this));
@@ -113,12 +111,12 @@ void BleTransport::setup() {
 
     // 创建 FreeRTOS 任务：保持连接的心跳任务
     xTaskCreatePinnedToCore(
-        BleTransport::keepAliveTaskEntry, // 任务入口
-        "ble_keepalive", // 名字
-        4096, // 栈
-        this, // 参数 = this
-        5, // 优先级
-        &keepAliveTaskHandle, // 任务句柄
+        BleTransport::keepAliveTaskEntry,
+        "ble_keepalive",
+        2048,
+        this,
+        5,
+        &keepAliveTaskHandle,
         APP_CPU_NUM // 绑到 APP CPU（一般是 core 1）
     );
 
@@ -126,7 +124,7 @@ void BleTransport::setup() {
     xTaskCreatePinnedToCore(
         BleTransport::reconnectTaskEntry,
         "ble_reconnect",
-        4096,
+        2048,
         this,
         5,
         &reconnectTaskHandle,
@@ -189,7 +187,6 @@ void BleTransport::reconnectTaskEntry(void *pvParameters) {
 // 周期发送心跳的任务
 void BleTransport::keepAliveTaskLoop() {
     uint8_t sendValue = 0;
-
     for (;;) {
         if (isConnected && p_TxCharacteristic != nullptr) {
             p_TxCharacteristic->setValue(&sendValue, 1);
@@ -227,7 +224,6 @@ void BleTransport::onBleConnect() {
 
 void BleTransport::onBleDisconnect() {
     isConnected = false;
-    // 通知重连任务：有断开事件，需要等一会儿再重新广播
     if (reconnectTaskHandle != nullptr) {
         xTaskNotifyGive(reconnectTaskHandle);
     }
