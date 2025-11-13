@@ -1,16 +1,11 @@
-// arkhipenko/TaskScheduler @ ^3.8.5
-
 #include <Arduino.h>
-#include "plugins/BleTransport.h"
-
-
-Scheduler runner;
+#include "ble/BleTransport.h"
 
 BleTransport bleTransport({
                               {"on", CommandIdEnum::COMMAND_ID_TURN_ON},
                               {"off", CommandIdEnum::COMMAND_ID_TURN_OFF},
                               {"left", CommandIdEnum::COMMAND_ID_TURN_LEFT},
-                          }, runner, "NB-DIY");
+                          }, "NB-DIY");
 
 
 void turnOnLed(CommandIdEnum commandId, CommandData &command_data, void *p_attach) {
@@ -23,15 +18,14 @@ void turnOnLed(CommandIdEnum commandId, CommandData &command_data, void *p_attac
     Serial.println();
 }
 
-REGISTER_HANDLER(CommandIdEnum::COMMAND_ID_TURN_ON, turnOnLed);
 
 void setup() {
     Serial.begin(115200);
     delay(1000);
+    REGISTER_HANDLER(CommandIdEnum::COMMAND_ID_TURN_ON, turnOnLed);
     bleTransport.setup();
-    runner.enable();
 }
 
 void loop() {
-    runner.execute();
+    delay(1000);
 }
