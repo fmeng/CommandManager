@@ -16,6 +16,18 @@ void turnOnLed(CommandIdEnum commandId, CommandData &command_data, void *p_attac
     Serial.print(", value: ");
     Serial.print(value);
     Serial.println();
+    command_data.accessMutex([](CommandData &data) {
+        data.id = millis() % 1000;
+        Serial.print("安全更新 data ");
+        Serial.print(", id: ");
+        Serial.print(data.id);
+        Serial.println();
+    });
+    CommandData &c = command_data.dump();
+    Serial.print("获取副本 c ");
+    Serial.print(", id: ");
+    Serial.print(c.id);
+    Serial.println();
 }
 
 

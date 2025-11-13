@@ -16,10 +16,18 @@ enum class CommandIdEnum : uint8_t {
 };
 
 /******************************************** Command Data (Singleton) ********************************************/
-#pragma pack(push, 1)  //// 确保结构体不会有额外填充, 开始 1 字节对齐
+struct CommandData;
+
+using DataAccesser = std::function<void(CommandData &data)>;
 
 struct CommandData {
     int id = 0;
+
+    void accessMutex(const DataAccesser &dataAccesser);
+
+    void dump(CommandData *dst);
+
+    CommandData &dump();
 
     static CommandData *instance();
 
@@ -30,9 +38,6 @@ struct CommandData {
 private:
     CommandData() = default;
 };
-
-#pragma pack(pop)  //// 确保结构体不会有额外填充, 恢复默认对齐
-
 
 /******************************************** Handler Types ********************************************/
 
