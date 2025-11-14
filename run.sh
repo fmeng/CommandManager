@@ -14,3 +14,7 @@ pio pkg unpublish EspMapping@1.0.0
 pio access list
 # https://registry.platformio.org/
 pio pkg search EspMapping
+
+#  - framework-arduinoespressif32 @ 3.20017.241212+sha.dcc1105b
+pio pkg list -p framework-arduinoespressif32
+pio pkg show platformio/framework-arduinoespressif32

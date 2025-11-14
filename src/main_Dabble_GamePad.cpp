@@ -1,5 +1,5 @@
 #define CUSTOM_SETTINGS
-#define INCLUDE_SENSOR_MODULE
+#define INCLUDE_GAMEPAD_MODULE
 #include <Arduino.h>
 #include <DabbleESP32.h>
 #include <map>
@@ -9,14 +9,14 @@
 // Keys in fixed display order
 // --------------------------------------------------
 std::vector<String> keysInOrder = {
-    "AccX", "AccY", "AccZ", "GyrX", "GyrY", "GyrZ", "MagX",
-    "MagY", "MagZ", "Sound", "long", "lati", "Pressure"
+    "Up", "Down", "Left", "Right", "Square", "Circle", "Cross",
+    "Triangle", "Start", "Select", "Angle", "Radius", "Xaxis", "Yaxis"
 };
 
 // --------------------------------------------------
 // Function map
 // --------------------------------------------------
-std::map<String, std::function<String(SensorModule &)> > callMap;
+std::map<String, std::function<String(GamePadModule &)> > callMap;
 
 // --------------------------------------------------
 std::map<String, String> lastValueMap;
@@ -56,35 +56,23 @@ void setup() {
     Serial.begin(115200);
     Dabble.begin("MyEsp32");
 
+    // Boolean keys
+    callMap["Up"] = [](GamePadModule &p) { return p.isUpPressed() ? "1" : "0"; };
+    callMap["Down"] = [](GamePadModule &p) { return p.isDownPressed() ? "1" : "0"; };
+    callMap["Left"] = [](GamePadModule &p) { return p.isLeftPressed() ? "1" : "0"; };
+    callMap["Right"] = [](GamePadModule &p) { return p.isRightPressed() ? "1" : "0"; };
+    callMap["Square"] = [](GamePadModule &p) { return p.isSquarePressed() ? "1" : "0"; };
+    callMap["Circle"] = [](GamePadModule &p) { return p.isCirclePressed() ? "1" : "0"; };
+    callMap["Cross"] = [](GamePadModule &p) { return p.isCrossPressed() ? "1" : "0"; };
+    callMap["Triangle"] = [](GamePadModule &p) { return p.isTrianglePressed() ? "1" : "0"; };
+    callMap["Start"] = [](GamePadModule &p) { return p.isStartPressed() ? "1" : "0"; };
+    callMap["Select"] = [](GamePadModule &p) { return p.isSelectPressed() ? "1" : "0"; };
 
-// Sensor.getLightIntensity()
-// Sensor.getProximityDistance()
-// Sensor.getTemperature()
-
-    // 加速度
-    callMap["AccX"] = [](SensorModule &s) { return String(s.getAccelerometerXaxis(), 4); };
-    callMap["AccY"] = [](SensorModule &s) { return String(s.getAccelerometerYaxis(), 4); };
-    callMap["AccZ"] = [](SensorModule &s) { return String(s.getAccelerometerZaxis(), 4); };
-
-    // 陀螺仪
-    callMap["GyrX"] = [](SensorModule &s) { return String(s.getGyroscopeXaxis(), 3); };
-    callMap["GyrY"] = [](SensorModule &s) { return String(s.getGyroscopeYaxis(), 3); };
-    callMap["GyrZ"] = [](SensorModule &s) { return String(s.getGyroscopeZaxis(), 3); };
-
-    // 磁力计
-    callMap["MagX"] = [](SensorModule &s) { return String(s.getMagnetometerXaxis(), 3); };
-    callMap["MagY"] = [](SensorModule &s) { return String(s.getMagnetometerYaxis(), 3); };
-    callMap["MagZ"] = [](SensorModule &s) { return String(s.getMagnetometerZaxis(), 3); };
-
-    // 声音
-    callMap["Sound"] = [](SensorModule &s) { return String(s.getSoundDecibels(), 3); };
-
-    // 经纬度
-    callMap["long"] = [](SensorModule &s) { return String(s.getGPSlongitude(), 2); };
-    callMap["lati"] = [](SensorModule &s) { return String(s.getGPSLatitude(), 2); };
-
-    // 压强
-    callMap["Pressure"] = [](SensorModule &s) { return String(s.getBarometerPressure(), 2); };
+    // Numeric
+    callMap["Angle"] = [](GamePadModule &p) { return String(p.getAngle()); };
+    callMap["Radius"] = [](GamePadModule &p) { return String(p.getRadius()); };
+    callMap["Xaxis"] = [](GamePadModule &p) { return String(p.getXaxisData(), 2); };
+    callMap["Yaxis"] = [](GamePadModule &p) { return String(p.getYaxisData(), 2); };
 }
 
 // --------------------------------------------------
@@ -92,7 +80,7 @@ void fillMap(std::map<String, String> &m) {
     for (const auto &k: keysInOrder) {
         auto it = callMap.find(k);
         if (it != callMap.end()) {
-            m[k] = it->second(Sensor);
+            m[k] = it->second(GamePad);
         }
     }
 }

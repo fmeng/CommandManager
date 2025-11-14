@@ -195,6 +195,8 @@ void BleTransport::keepAliveTaskLoop() {
         }
         vTaskDelay(pdMS_TO_TICKS(KEEP_CONNECT_INTERVAL_MS));
     }
+
+    vTaskDelete(nullptr);
 }
 
 // 断开连接后延时重新 startAdvertising 的任务
@@ -213,6 +215,8 @@ void BleTransport::reconnectTaskLoop() {
 #endif
         }
     }
+
+    vTaskDelete(nullptr);
 }
 
 
