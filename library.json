@@ -1,8 +1,8 @@
 {
-  "name": "EspMapping",
+  "name": "CommandManager",
   "version": "1.0.0",
-  "keywords": "EspMapping",
-  "description": "EspMapping",
+  "keywords": "CommandManager",
+  "description": "CommandManager",
   "authors": [
     {
       "name": "fmeng",
@@ -12,7 +12,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/fmeng/EspMapping.git"
+    "url": "https://github.com/fmeng/CommandManager.git"
   },
   "export": {
     "include": [
@@ -28,7 +28,7 @@
       "src/main.cpp"
     ]
   },
-  "headers": "EspMapping.h",
+  "headers": "CommandManager.h",
   "license": "Apache-2.0",
   "frameworks": "*",
   "platforms": "*"

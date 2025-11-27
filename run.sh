@@ -8,9 +8,13 @@ pio account login
 pio pkg publish --no-interactive
 
 # 删除
-pio pkg unpublish EspMapping@1.0.0
+pio pkg unpublish CommandManager@1.0.0
 
 # 验证是否上传成功
 pio access list
 # https://registry.platformio.org/
-pio pkg search EspMapping
+pio pkg search CommandManager
+
+#  - framework-arduinoespressif32 @ 3.20017.241212+sha.dcc1105b
+pio pkg list -p framework-arduinoespressif32
+pio pkg show platformio/framework-arduinoespressif32

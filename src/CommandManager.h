@@ -1,50 +1,77 @@
 #pragma once
 #include <map>
 #include <functional>
+#include "CommandIdEnum.h"
 
-template<typename CommandId_Type, typename CommandData_Type>
+
 class CommandManager {
 public:
-    using CommandHandler = std::function<void(CommandId_Type commandId, CommandData_Type &command_data, void *p_attach)>
-    ;
+    typedef std::function<void(CommandIdEnum commandId, uint8_t *p_commandValue, size_t valueSize)> CommandHandler;
+    typedef std::function<void(uint32_t commandBits)> EventHandler;
 
-protected:
-    static std::map<CommandId_Type, CommandHandler> m_commandHandlers;
-    static CommandData_Type *const p_commandData;
-
-public:
-    static void unregisterCommandHandler(CommandId_Type commandId) {
-        m_commandHandlers.erase(commandId);
+    static CommandManager &instance() {
+        static CommandManager instance_;
+        return instance_;
     }
 
-    static void registerCommandHandler(CommandId_Type commandId, const CommandHandler &handler) {
+    CommandManager(const CommandManager &) = delete;
+
+    CommandManager &operator=(const CommandManager &) = delete;
+
+    CommandManager(CommandManager &&) = delete;
+
+    CommandManager &operator=(CommandManager &&) = delete;
+
+    void registerCommandHandler(const CommandIdEnum commandId, const CommandHandler &handler) {
         m_commandHandlers[commandId] = handler;
     }
 
-    static void registerCommandHandlers(
-        const std::map<CommandId_Type, CommandHandler> &idHandlerMap) {
-        for (const auto &kv: idHandlerMap) {
-            m_commandHandlers[kv.first] = kv.second;
-        }
+    void registerEventHandler(const uint32_t cmdBits, const EventHandler &handler) {
+        m_eventHandlers[cmdBits] = handler;
     }
 
-    static bool handleCommand(CommandId_Type commandId,
-                              CommandData_Type &commandData,
-                              void *p_attach) {
-        if (m_commandHandlers.find(commandId) == m_commandHandlers.end()) {
-            return false;
+    void handleCommand(const CommandIdEnum commandId, uint8_t *p_commandValue, const size_t valueSize) {
+        const auto it = m_commandHandlers.find(commandId);
+        if (it == m_commandHandlers.end()) {
+            return;
         }
-        m_commandHandlers[commandId](commandId, commandData, p_attach);
-        return true;
+        it->second(commandId, p_commandValue, valueSize);
+    }
+
+    std::map<uint32_t, EventHandler> &getEventHandlers() {
+        return m_eventHandlers;
+    }
+
+private:
+    CommandManager() {
+    }
+
+    std::map<CommandIdEnum, CommandHandler> m_commandHandlers;
+    std::map<uint32_t, EventHandler> m_eventHandlers;
+};
+
+struct RegisterCommandHandler {
+    RegisterCommandHandler(const CommandIdEnum commandId, const CommandManager::CommandHandler &handler) {
+        CommandManager::instance().registerCommandHandler(commandId, handler);
     }
 };
 
-template<typename CommandId_Type, typename CommandData_Type>
-std::map<CommandId_Type,
-    typename CommandManager<CommandId_Type, CommandData_Type>::CommandHandler>
-CommandManager<CommandId_Type, CommandData_Type>::m_commandHandlers{};
+struct RegisterEventHandler {
+    RegisterEventHandler(const uint32_t cmdBits, const CommandManager::EventHandler &handler) {
+        CommandManager::instance().registerEventHandler(cmdBits, handler);
+    }
+};
 
-template<typename CommandId_Type, typename CommandData_Type>
-CommandData_Type *const
-        CommandManager<CommandId_Type, CommandData_Type>::p_commandData =
-        CommandData_Type::instance();
+#define CONCAT_INNER(a, b) a##b
+#define CONCAT(a, b) CONCAT_INNER(a, b)
+#define UNIQUE_NAME(base) CONCAT(base, __COUNTER__)
+
+#define REGISTER_COMMAND_HANDLER(id, fn)                              \
+namespace {                                                           \
+static RegisterCommandHandler UNIQUE_NAME(_auto_cmd_reg_) ( id, fn ); \
+}
+
+#define REGISTER_EVENT_HANDLER(id, fn)                              \
+namespace {                                                         \
+static RegisterEventHandler UNIQUE_NAME(_auto_evt_reg_) ( id, fn ); \
+}
