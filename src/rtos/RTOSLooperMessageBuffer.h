@@ -8,7 +8,7 @@
 #endif
 
 #ifndef LOOPER_ONE_MESSAGE_SIZE
-#define LOOPER_ONE_MESSAGE_SIZE 128
+#define LOOPER_ONE_MESSAGE_SIZE 256
 #endif
 
 class RTOSLooperMessageBuffer {

@@ -8,8 +8,8 @@
  */
 template<typename T, typename Derived>
 class FrameWrapper {
-    static_assert(is_frame_data_value<T>::value,
-                  "FrameWrapper<T, Derived> T must be trivially copyable, Arduino String, or std::string");
+    // static_assert(is_frame_data_value<T>::value,
+    //               "FrameWrapper<T, Derived> T must be trivially copyable, Arduino String, or std::string");
 
 protected:
     CommandIdEnum commandId = static_cast<CommandIdEnum>(0);
@@ -62,20 +62,6 @@ public:
             return -1;
         }
         return static_cast<Derived &>(*this).fillFrameData(p_buff, size, headIncludeIndex, tailIncludeIndex);
-    }
-
-    /**
-     * 收到数据传送给串口,变换结构
-     *
-     * @param p_buff
-     * @param size
-     * @return <数组指针, 数组大小>
-     */
-    std::pair<const uint8_t * const, size_t> toTxSendData(const uint8_t *const p_buff, const size_t size) const {
-        if (p_buff == nullptr || size == 0) {
-            return std::make_pair(nullptr, 0);
-        }
-        return static_cast<const Derived &>(*this).toTxSendData(p_buff, size);
     }
 
     /**
